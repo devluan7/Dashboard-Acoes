@@ -1,14 +1,16 @@
 import streamlit as st
 import pandas as pd
 import yfinance as yf
+from datetime import date
+#Pegando a data atual
+data_atual = date.today()
 
 
 @st.cache_data #Faz com que as informaçoes da função abaixo fiquem armazenadas em cache
 def carregar_dados(empresas):
     texto_tickers = " ".join(empresas)
     dados_acao = yf.Tickers(texto_tickers)
-    cotacoes_acao = dados_acao.history(period = "1d", start = "2010-01-01", end = "2025-04-01")
-    print(cotacoes_acao)
+    cotacoes_acao = dados_acao.history(period = "1d", start = "2010-01-01", end = data_atual)
     cotacoes_acao = cotacoes_acao["Close"]   
     return cotacoes_acao
 
@@ -60,6 +62,9 @@ total_inicial_carteira = sum(carteira)
 
 for i, acao in enumerate(lista_acoes):
     #Mudar a cor no markdown = :Cor[texto]
+    if pd.isna(dados[acao].iloc[-1]) or pd.isna(dados[acao].iloc[0]):
+        texto_perfomance_ativos += f"  \n{acao}: :gray[Dados insuficientes no período]"
+        continue
     performance_ativo = dados[acao].iloc[-1] / dados[acao].iloc[0] - 1
     performance_ativo = float(performance_ativo)
 
